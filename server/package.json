@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx nodemon",
+    "dev": "npx nodemon | npx pino-pretty",
     "build": "rimraf ./build && tsc",
     "start": "npm run build && node build/index.js"
   },
@@ -21,11 +21,15 @@
   "homepage": "https://github.com/shreverr/Homie#readme",
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
   "dependencies": {
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "nodemon": "^3.1.2",
-    "pino": "^9.1.0"
+    "pino": "^9.1.0",
+    "pino-http": "^10.1.0",
+    "pino-pretty": "^11.1.0"
   },
   "devDependencies": {
+    "@types/express": "^4.17.21",
     "@types/node": "^20.12.13",
     "rimraf": "^5.0.7",
     "ts-node": "^10.9.2",

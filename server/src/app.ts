@@ -5,11 +5,14 @@ import logger from "./config/logger";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import EventEmitter from "events";
+import cors from 'cors'
 
 const app = express();
 const server = createServer(app);
 const io = new Server(server);
-const eventEmmiter = new EventEmitter();
+const eventEmmiter = new EventEmitter();\
+
+app.use(cors())
 
 let switchIsOn = false
 

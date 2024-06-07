@@ -8,13 +8,17 @@
 
 SocketIOclient socketIO;
 
-#define LED_PIN D4
 #define SERIAL_BAUD 115200
 #define USER_SERIAL Serial
+#define LED_PIN D4
 #define RELAY_PIN 5
+#define RANDOM_PIN 4
+#define SWITCH_PIN 15
 
 const char* WIFI_SSID = "Gunnukanet";
 const char* WIFI_PASSWORD = "Gunnu@123";
+// const char* SERVER_IP = "homie-server.onrender.com";
+// const int PORT = 443;
 const char* SERVER_IP = "homie-server.onrender.com";
 const int PORT = 443;
 
@@ -92,10 +96,10 @@ void blinkLED(uint timeDelay) {
 
 void changeRelayState(bool state) {
   if (state) {
-    USER_SERIAL.printf("changing to true");
+    USER_SERIAL.printf("changing to true\n");
     digitalWrite(RELAY_PIN, HIGH);
   } else {
-    USER_SERIAL.printf("changing to false");
+    USER_SERIAL.printf("changing to false\n");
     digitalWrite(RELAY_PIN, LOW);
   }
 }
@@ -106,6 +110,8 @@ void setup() {
 
   pinMode(LED_PIN, OUTPUT);
   pinMode(RELAY_PIN, OUTPUT);
+  pinMode(RANDOM_PIN, OUTPUT);  // sets the digital pin 13 as output
+  pinMode(SWITCH_PIN, INPUT);
   // Connect to wifi
   connectWifi(WIFI_SSID, WIFI_PASSWORD);
   //socket conn
@@ -115,9 +121,12 @@ void setup() {
   // event handler
   socketIO.onEvent(socketIOEvent);
 }
-
+int val = 0;
 void loop() {
   // blinkLED(1000);
+  val = digitalRead(SWITCH_PIN);  
+  USER_SERIAL.printf("val\n %d", val);
+  digitalWrite(RANDOM_PIN, val);
   reconnectToWifiIfDisconnected(WIFI_SSID, WIFI_PASSWORD);
   socketIO.loop();
 }

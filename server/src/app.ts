@@ -12,7 +12,7 @@ const server = createServer(app);
 const io = new Server(server);
 const eventEmitter = new EventEmitter();
 
-app.use(cors())
+app.use(cors());
 
 let switchIsOn = false;
 let timerInterval: NodeJS.Timeout | null = null;
@@ -22,7 +22,7 @@ io.on('connection', (socket) => {
   console.log('a user connected');
 
   socket.on('logs', (data) => {
-    logger.info(`ESP8266: ${data}`)
+    logger.info(`ESP8266: ${data}`);
   });
 
   socket.on('disconnect', () => {
@@ -30,9 +30,9 @@ io.on('connection', (socket) => {
   });
 
   eventEmitter.on('SwitchStateChange', () => {
-    logger.info(`Sending new state to esp8266`)
-    socket.emit('SwitchStateChange', switchIsOn)
-  })
+    logger.info(`Sending new state to ESP8266: ${switchIsOn}`);
+    socket.emit('SwitchStateChange', switchIsOn);
+  });
 });
 
 app.use(express.json());
@@ -40,32 +40,40 @@ app.use(pinoHttp({ logger, useLevel: "trace" }));
 
 app.get("/switch/state", (req, res) => {
   try {
-    logger.info("GET switch state")
+    logger.info("GET switch state");
     res.status(200).json({
       state: switchIsOn,
       status: 'success'
-    })
+    });
   } catch (err) {
-    logger.error(err)
+    logger.error(err);
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error'
+    });
   }
-})
+});
 
-app.post("/switch/state", (req, res) => {
+app.post("/switch/state", async (req, res) => {
   try {
-    const newState = req.body.state
-    logger.info(`POST switch state: ${newState}`)
-    switchIsOn = newState
-    eventEmitter.emit('SwitchStateChange')
+    const newState = req.body.state;
+    logger.info(`POST switch state: ${newState}`);
+    switchIsOn = newState;
+    eventEmitter.emit('SwitchStateChange');
     res.status(200).json({
       state: switchIsOn,
       status: 'success'
-    })
+    });
   } catch (err) {
-    logger.error(err)
+    logger.error(err);
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error'
+    });
   }
-})
+});
 
-app.post("/timer", (req, res) => {
+app.post("/timer", async (req, res) => {
   try {
     const { duration, Active } = req.body;
     isTimerActive = Active;
@@ -76,11 +84,16 @@ app.post("/timer", (req, res) => {
     }
 
     if (duration > 0 && isTimerActive) {
-      timerInterval = setInterval(() => {
-        if (switchIsOn == true) switchIsOn = true;
-        else switchIsOn = true;
-        // logger.info(`Timer expired, new state: ${switchIsOn}`);
-        eventEmitter.emit('SwitchStateChange');
+      const toggleSwitchState = async () => {
+        switchIsOn = !switchIsOn;
+      };
+
+      timerInterval = setInterval(async () => {
+        await toggleSwitchState()
+        .then(()=>{
+          eventEmitter.emit('SwitchStateChange')
+        logger.info(`Timer Expired: Changing state to ${switchIsOn}`)
+        });
       }, duration * 60 * 1000);
     }
 
@@ -95,7 +108,6 @@ app.post("/timer", (req, res) => {
       message: 'Internal server error'
     });
   }
-})
-
+});
 
 export default server;

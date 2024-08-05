@@ -20,6 +20,7 @@ let isTimerActive = false;
 
 io.on('connection', (socket) => {
   console.log('a user connected');
+  eventEmitter.emit('SwitchStateChange');
 
   socket.on('logs', (data) => {
     logger.info(`ESP8266: ${data}`);

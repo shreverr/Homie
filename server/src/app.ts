@@ -73,6 +73,10 @@ app.post("/switch/state", async (req, res) => {
   }
 });
 
+const toggleSwitchState = () => {
+  switchIsOn = !switchIsOn;
+  logger.info(`Timer interval executed, new switch state: ${switchIsOn}`);
+};
 app.post("/timer", async (req, res) => {
   try {
     const { duration, Active } = req.body;
@@ -84,16 +88,10 @@ app.post("/timer", async (req, res) => {
     }
 
     if (duration > 0 && isTimerActive) {
-      const toggleSwitchState = async () => {
-        switchIsOn = !switchIsOn;
-      };
-
       timerInterval = setInterval(async () => {
-        await toggleSwitchState()
-        .then(()=>{
-          eventEmitter.emit('SwitchStateChange')
-        logger.info(`Timer Expired: Changing state to ${switchIsOn}`)
-        });
+        toggleSwitchState()
+        eventEmitter.emit('SwitchStateChange')
+        logger.info(`${switchIsOn}`)
       }, duration * 60 * 1000);
     }
 

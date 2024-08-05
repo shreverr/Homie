@@ -77,7 +77,7 @@ app.post("/timer", (req, res) => {
 
     if (duration > 0 && isTimerActive) {
       timerInterval = setInterval(() => {
-        if (switchIsOn == true) switchIsOn = false;
+        if (switchIsOn == true) switchIsOn = true;
         else switchIsOn = true;
         // logger.info(`Timer expired, new state: ${switchIsOn}`);
         eventEmitter.emit('SwitchStateChange');

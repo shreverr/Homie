@@ -14,7 +14,7 @@ const eventEmitter = new EventEmitter();
 
 app.use(cors());
 
-let switchIsOn = false;
+let switchIsOn = "false";
 let timerInterval: NodeJS.Timeout | null = null;
 let isTimerActive = false;
 
@@ -73,10 +73,6 @@ app.post("/switch/state", async (req, res) => {
   }
 });
 
-const toggleSwitchState = () => {
-  switchIsOn = !switchIsOn;
-  logger.info(`Timer interval executed, new switch state: ${switchIsOn}`);
-};
 app.post("/timer", async (req, res) => {
   try {
     const { duration, Active } = req.body;
@@ -89,7 +85,7 @@ app.post("/timer", async (req, res) => {
 
     if (duration > 0 && isTimerActive) {
       timerInterval = setInterval(async () => {
-        toggleSwitchState()
+        if(switchIsOn==="true")switchIsOn="false";else switchIsOn="true";
         eventEmitter.emit('SwitchStateChange')
         logger.info(`${switchIsOn}`)
       }, duration * 60 * 1000);
